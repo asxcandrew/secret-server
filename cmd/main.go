@@ -12,6 +12,7 @@ import (
 	server "github.com/asxcandrew/secret-server"
 	"github.com/asxcandrew/secret-server/storage"
 	"github.com/go-kit/kit/log"
+	"github.com/gorilla/mux"
 )
 
 var logger log.Logger
@@ -50,7 +51,7 @@ func main() {
 	st := storage.NewPGStorage(db)
 	s := server.NewSecretService(st)
 
-	s = item.NewSecretLoggingService(logger, s)
+	s = server.NewSecretLoggingService(logger, s)
 
 	httpLogger := log.With(logger, "component", "http")
 
