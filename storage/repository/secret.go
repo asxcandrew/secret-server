@@ -6,4 +6,5 @@ import (
 
 type SecretRepository interface {
 	Get(string) (*model.Secret, error)
+	Create(*model.Secret) error
 }

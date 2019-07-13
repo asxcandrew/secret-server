@@ -21,3 +21,7 @@ func (r *SecretRepository) Get(h string) (*model.Secret, error) {
 
 	return m, err
 }
+
+func (r *SecretRepository) Create(m *model.Secret) error {
+	return nil
+}
