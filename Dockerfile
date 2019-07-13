@@ -11,7 +11,7 @@ RUN go mod download
 
 COPY . .
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o build/secret-service cmd/main.go
-# RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o build/migrate migrations/*.go
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o build/migrate migrations/*.go
 
 # final stage
 FROM alpine:3.10
@@ -23,7 +23,7 @@ RUN apk update \
         && update-ca-certificates 2>/dev/null || true
 
 COPY --from=builder /go/src/github.com/asxcandrew/secret-service/build/secret-service /app/
-# COPY --from=builder /go/src/github.com/asxcandrew/secret-service/build/migrate /app/
+COPY --from=builder /go/src/github.com/asxcandrew/secret-service/build/migrate /app/
 
 EXPOSE 8000
 
