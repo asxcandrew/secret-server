@@ -1,6 +1,8 @@
 package pg
 
 import (
+	"time"
+
 	"github.com/asxcandrew/secret-server/storage/model"
 	"github.com/go-pg/pg"
 )
@@ -16,12 +18,14 @@ func NewPGSecretRepository(db *pg.DB) *SecretRepository {
 }
 
 func (r *SecretRepository) Get(h string) (*model.Secret, error) {
-	m := &model.Secret{Hash: h}
-	err := r.db.Select(m)
+	m := &model.Secret{}
+	err := r.db.Model(m).Where("hash = ?", h).Select()
 
 	return m, err
 }
 
 func (r *SecretRepository) Create(m *model.Secret) error {
-	return nil
+	m.CreatedAt = time.Now()
+
+	return r.db.Insert(m)
 }
