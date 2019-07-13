@@ -8,7 +8,7 @@ import (
 )
 
 type SecretEntity struct {
-	XMLName        xml.Name  `xml:"Secret"`
+	XMLName        xml.Name  `xml:"Secret" json:"-"`
 	Hash           string    `json:"hash" xml:"hash"`
 	SecretText     string    `json:"secretText" xml:"secretText"`
 	CreatedAt      time.Time `json:"createdAt" xml:"createdAt"`

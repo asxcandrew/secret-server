@@ -30,7 +30,7 @@ func (r *CreateSecretRequest) Validate() error {
 
 func MakeGetSecretEndpoint(s SecretService) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		req := request.(GetSecretRequest)
+		req := request.(*GetSecretRequest)
 
 		secret, err := s.Get(req.Hash)
 
@@ -49,7 +49,7 @@ func MakeGetSecretEndpoint(s SecretService) endpoint.Endpoint {
 
 func MakeCreateSecretEndpoint(s SecretService) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		req := request.(CreateSecretRequest)
+		req := request.(*CreateSecretRequest)
 
 		secret := &model.Secret{
 			Body:       req.Secret,

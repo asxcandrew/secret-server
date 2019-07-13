@@ -3,9 +3,11 @@ package server
 import (
 	"context"
 	"encoding/json"
+	"encoding/xml"
 	"errors"
 	"net/http"
 
+	"github.com/asxcandrew/secret-server/middleware"
 	"github.com/go-kit/kit/log"
 	kithttp "github.com/go-kit/kit/transport/http"
 	"github.com/gorilla/mux"
@@ -16,6 +18,7 @@ func MakeSecretHandler(s SecretService, logger log.Logger) http.Handler {
 	opts := []kithttp.ServerOption{
 		kithttp.ServerErrorLogger(logger),
 		kithttp.ServerErrorEncoder(encodeError),
+		kithttp.ServerBefore(middleware.HTTPToContext()),
 	}
 
 	createSecretHandler := kithttp.NewServer(
@@ -72,12 +75,19 @@ func decodeGetSecretRequest(_ context.Context, r *http.Request) (interface{}, er
 		return nil, errors.New("Bad request")
 	}
 
-	return GetSecretRequest{Hash: val}, nil
+	return &GetSecretRequest{Hash: val}, nil
 }
 
-func encodeResponse(ctx context.Context, w http.ResponseWriter, response interface{}) error {
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	return json.NewEncoder(w).Encode(response)
+func encodeResponse(ctx context.Context, w http.ResponseWriter, response interface{}) (err error) {
+	if val, ok := ctx.Value(middleware.AcceptHeaderJSONContextKey).(bool); ok && val {
+		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+		err = json.NewEncoder(w).Encode(response)
+	}
+	if val, ok := ctx.Value(middleware.AcceptHeaderXMLContextKey).(bool); ok && val {
+		w.Header().Set("Content-Type", "application/xml; charset=utf-8")
+		err = xml.NewEncoder(w).Encode(response)
+	}
+	return err
 }
 
 // encode errors from business-logic
