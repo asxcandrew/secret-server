@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"encoding/xml"
-	"errors"
 	"net/http"
 
 	"github.com/asxcandrew/secret-server/middleware"
@@ -47,7 +46,7 @@ func decodeCreateSecretRequest(_ context.Context, r *http.Request) (interface{},
 	var body = &CreateSecretRequest{}
 
 	if err := r.ParseForm(); err != nil {
-		return nil, err
+		return nil, InvalidInputError
 	}
 
 	decoder := schema.NewDecoder()
@@ -55,13 +54,13 @@ func decodeCreateSecretRequest(_ context.Context, r *http.Request) (interface{},
 	err := decoder.Decode(body, r.PostForm)
 
 	if err != nil {
-		return nil, err
+		return nil, InvalidInputError
 	}
 
 	err = body.Validate()
 
 	if err != nil {
-		return nil, err
+		return nil, InvalidInputError
 	}
 
 	return body, nil
@@ -72,7 +71,7 @@ func decodeGetSecretRequest(_ context.Context, r *http.Request) (interface{}, er
 	val, ok := vars["hash"]
 
 	if !ok {
-		return nil, errors.New("Bad request")
+		return nil, NotFoundError
 	}
 
 	return &GetSecretRequest{Hash: val}, nil
@@ -92,4 +91,12 @@ func encodeResponse(ctx context.Context, w http.ResponseWriter, response interfa
 
 // encode errors from business-logic
 func encodeError(_ context.Context, err error, w http.ResponseWriter) {
+	switch err {
+	case NotFoundError:
+		w.WriteHeader(http.StatusNotFound)
+	case InvalidInputError:
+		w.WriteHeader(http.StatusBadRequest)
+	default:
+		w.WriteHeader(http.StatusInternalServerError)
+	}
 }
