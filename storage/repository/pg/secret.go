@@ -29,3 +29,17 @@ func (r *SecretRepository) Create(m *model.Secret) error {
 
 	return r.db.Insert(m)
 }
+
+func (r *SecretRepository) CommitView(m *model.Secret) error {
+	v := &model.SecretView{
+		SecretID:  m.ID,
+		CreatedAt: time.Now(),
+	}
+
+	return r.db.Insert(v)
+}
+
+func (r *SecretRepository) RemainingViews(m *model.Secret) (int, error) {
+	views, err := r.db.Model((*model.SecretView)(nil)).Where("secret_id = ?", m.ID).Count()
+	return m.ViewsLimit - views, err
+}

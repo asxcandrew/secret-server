@@ -35,12 +35,12 @@ func (mw instrmw) Create(m *model.Secret) (err error) {
 	return
 }
 
-func (mw instrmw) Get(h string) (m *model.Secret, err error) {
+func (mw instrmw) Get(h string) (m *model.Secret, rv int, err error) {
 	defer func(begin time.Time) {
 		lvs := []string{"method", "get", "error", fmt.Sprint(err != nil)}
 		mw.requestCount.With(lvs...).Add(1)
 		mw.requestLatency.With(lvs...).Observe(time.Since(begin).Seconds())
 	}(time.Now())
-	m, err = mw.SecretService.Get(h)
+	m, rv, err = mw.SecretService.Get(h)
 	return
 }

@@ -20,7 +20,7 @@ func NewSecretLoggingService(logger log.Logger, s SecretService) SecretService {
 	return &secretLoggingService{logger, s}
 }
 
-func (s *secretLoggingService) Get(h string) (item *model.Secret, err error) {
+func (s *secretLoggingService) Get(h string) (item *model.Secret, rv int, err error) {
 	defer func(begin time.Time) {
 		s.logger.Log(
 			"method", "get",

@@ -21,6 +21,8 @@ func TestGetSecret_Positive(t *testing.T) {
 
 	srMock := &mock.SecretRepositoryMock{}
 	srMock.On("Get").Return(nil)
+	srMock.On("CommitView").Return(nil)
+	srMock.On("RemainingViews").Return(1, nil)
 
 	s := server.NewSecretService(storage.Storage{
 		Secret: srMock,
@@ -37,6 +39,6 @@ func TestGetSecret_Positive(t *testing.T) {
 
 	routes.ServeHTTP(rr, req)
 
-	a.NotEqual(http.StatusOK, rr.Code)
+	// a.NotEqual(http.StatusOK, rr.Code)
 	a.Equal(http.StatusOK, rr.Code)
 }

@@ -2,7 +2,6 @@ package server
 
 import (
 	"context"
-	"errors"
 	"time"
 
 	"github.com/asxcandrew/secret-server/storage/model"
@@ -32,16 +31,14 @@ func MakeGetSecretEndpoint(s SecretService) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req := request.(*GetSecretRequest)
 
-		secret, err := s.Get(req.Hash)
+		secret, rv, err := s.Get(req.Hash)
 
 		if err != nil {
-			return nil, err
-		}
-		if time.Now().After(secret.ExpiresAt) {
-			return nil, errors.New("Expired")
+			return nil, NotFoundError
 		}
 
 		res := modelToSecretEntity(secret)
+		res.RemainingViews = rv
 
 		return res, nil
 	}
@@ -60,7 +57,7 @@ func MakeCreateSecretEndpoint(s SecretService) endpoint.Endpoint {
 		err := s.Create(secret)
 
 		if err != nil {
-			return nil, err
+			return nil, InvalidInputError
 		}
 
 		res := modelToSecretEntity(secret)
