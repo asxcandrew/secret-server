@@ -15,6 +15,7 @@ require (
 	github.com/ianlancetaylor/demangle v0.0.0-20181102032728-5e5cf60278f6 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/kelseyhightower/envconfig v1.4.0
+	github.com/prometheus/client_golang v1.0.0
 	github.com/satori/go.uuid v1.2.0
 	github.com/stretchr/testify v1.3.0
 	golang.org/x/arch v0.0.0-20190312162104-788fe5ffcd8c // indirect

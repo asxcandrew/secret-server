@@ -1,0 +1,19 @@
+global:
+  scrape_interval:     15s
+  external_labels:
+    monitor: 'secret-monitor'
+
+scrape_configs:
+  - job_name: 'prometheus'
+    scrape_interval: 5s
+    static_configs:
+      - targets: ['localhost:9090']
+        labels:
+          group: 'local'
+
+  - job_name: 'secret'
+    scrape_interval: 5s
+    static_configs:
+      - targets: ['docker.for.mac.localhost:80']
+        labels:
+          group: 'secret'

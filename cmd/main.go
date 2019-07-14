@@ -12,7 +12,10 @@ import (
 	server "github.com/asxcandrew/secret-server"
 	"github.com/asxcandrew/secret-server/storage"
 	"github.com/go-kit/kit/log"
+	kitprometheus "github.com/go-kit/kit/metrics/prometheus"
 	"github.com/gorilla/mux"
+	stdprometheus "github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 var logger log.Logger
@@ -53,11 +56,28 @@ func main() {
 
 	s = server.NewSecretLoggingService(logger, s)
 
+	fieldKeys := []string{"method", "error"}
+	requestCount := kitprometheus.NewCounterFrom(stdprometheus.CounterOpts{
+		Namespace: "secret_group",
+		Subsystem: "secret_service",
+		Name:      "request_count",
+		Help:      "Number of requests received.",
+	}, fieldKeys)
+	requestLatency := kitprometheus.NewSummaryFrom(stdprometheus.SummaryOpts{
+		Namespace: "secret_group",
+		Subsystem: "secret_service",
+		Name:      "request_latency_microseconds",
+		Help:      "Total duration of requests in microseconds.",
+	}, fieldKeys)
+
+	s = server.MonitoringMiddleware(requestCount, requestLatency)(s)
+
 	httpLogger := log.With(logger, "component", "http")
 
 	routes := mux.NewRouter()
 
 	routes.PathPrefix("/secret").Handler(server.MakeSecretHandler(s, httpLogger))
+	routes.Path("/metrics").Handler(promhttp.Handler())
 
 	srv := &http.Server{
 		Addr:         httpAddr,
