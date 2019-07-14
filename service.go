@@ -9,6 +9,8 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
+type ServiceMiddleware func(SecretService) SecretService
+
 type SecretService interface {
 	Get(string) (*model.Secret, int, error)
 	Create(*model.Secret) error

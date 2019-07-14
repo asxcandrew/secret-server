@@ -8,14 +8,12 @@ import (
 	"github.com/go-kit/kit/metrics"
 )
 
-type ServiceMiddleware func(SecretService) SecretService
-
 func MonitoringMiddleware(
 	requestCount metrics.Counter,
 	requestLatency metrics.Histogram,
 ) ServiceMiddleware {
 	return func(next SecretService) SecretService {
-		return instrmw{requestCount, requestLatency, next}
+		return &instrmw{requestCount, requestLatency, next}
 	}
 }
 
@@ -25,7 +23,7 @@ type instrmw struct {
 	SecretService
 }
 
-func (mw instrmw) Create(m *model.Secret) (err error) {
+func (mw *instrmw) Create(m *model.Secret) (err error) {
 	defer func(begin time.Time) {
 		lvs := []string{"method", "create", "error", fmt.Sprint(err != nil)}
 		mw.requestCount.With(lvs...).Add(1)
@@ -35,7 +33,7 @@ func (mw instrmw) Create(m *model.Secret) (err error) {
 	return
 }
 
-func (mw instrmw) Get(h string) (m *model.Secret, rv int, err error) {
+func (mw *instrmw) Get(h string) (m *model.Secret, rv int, err error) {
 	defer func(begin time.Time) {
 		lvs := []string{"method", "get", "error", fmt.Sprint(err != nil)}
 		mw.requestCount.With(lvs...).Add(1)

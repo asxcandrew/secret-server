@@ -54,7 +54,7 @@ func main() {
 	st := storage.NewPGStorage(db)
 	s := server.NewSecretService(st)
 
-	s = server.NewSecretLoggingService(logger, s)
+	s = server.LogginggMiddleware(logger)(s)
 
 	fieldKeys := []string{"method", "error"}
 	requestCount := kitprometheus.NewCounterFrom(stdprometheus.CounterOpts{
