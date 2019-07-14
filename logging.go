@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/asxcandrew/galas/api/representation"
 	"github.com/asxcandrew/secret-server/storage/model"
 	"github.com/go-kit/kit/log"
 )
@@ -21,19 +20,19 @@ func NewSecretLoggingService(logger log.Logger, s SecretService) SecretService {
 	return &secretLoggingService{logger, s}
 }
 
-func (s *itemLoggingService) Get(id int) (item *model.Secret, err error) {
+func (s *secretLoggingService) Get(h string) (item *model.Secret, err error) {
 	defer func(begin time.Time) {
 		s.logger.Log(
 			"method", "get",
-			"params", fmt.Sprintf("[id=%d]", id),
+			"params", fmt.Sprintf("[hash=%s]", h),
 			"took", time.Since(begin),
 			"err", err,
 		)
 	}(time.Now())
-	return s.SecretService.Get(id)
+	return s.SecretService.Get(h)
 }
 
-func (s *itemLoggingService) Create(item *representation.ItemEntity, authorID int) (res *model.Secret, err error) {
+func (s *secretLoggingService) Create(m *model.Secret) (err error) {
 	defer func(begin time.Time) {
 		s.logger.Log(
 			"method", "create",
@@ -41,5 +40,5 @@ func (s *itemLoggingService) Create(item *representation.ItemEntity, authorID in
 			"err", err,
 		)
 	}(time.Now())
-	return s.SecretService.Create(item, authorID)
+	return s.SecretService.Create(m)
 }

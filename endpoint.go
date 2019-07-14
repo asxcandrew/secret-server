@@ -37,7 +37,7 @@ func MakeGetSecretEndpoint(s SecretService) endpoint.Endpoint {
 		if err != nil {
 			return nil, err
 		}
-		if time.Now().Before(secret.ExpiresAt) {
+		if time.Now().After(secret.ExpiresAt) {
 			return nil, errors.New("Expired")
 		}
 
