@@ -63,11 +63,12 @@ func main() {
 		Name:      "request_count",
 		Help:      "Number of requests received.",
 	}, fieldKeys)
-	requestLatency := kitprometheus.NewSummaryFrom(stdprometheus.SummaryOpts{
+	requestLatency := kitprometheus.NewHistogramFrom(stdprometheus.HistogramOpts{
 		Namespace: "secret_group",
 		Subsystem: "secret_service",
 		Name:      "request_latency_microseconds",
-		Help:      "Total duration of requests in microseconds.",
+		Help:      "Total duration of requests in miliseconds.",
+		Buckets:   []float64{5, 10, 20, 50, 100, 200},
 	}, fieldKeys)
 
 	s = server.MonitoringMiddleware(requestCount, requestLatency)(s)
